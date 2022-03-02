@@ -55,6 +55,9 @@ do_clone() {
     show_info "cloning repos"
     for line in $(< "${1:-/dev/stdin}"); do
       line=$(echo "$line" | sed 's/, /,/' | awk '{print tolower($0)}')
+      if [[ -z $line ]]; then
+        continue
+      fi
 
       if [[ $line = http* ]]; then
         cleared=$(echo "$line" | sed 's/https\?:\/\/\(.*\).git/\1/')
@@ -82,7 +85,16 @@ do_clone() {
       else
         show_info "cloning $repo into $full_path"
         mkdir -p "${full_path}"
+        set +e
         git clone "${repo}" "${full_path}"
+        res=$?
+        set -e
+
+        if [[ $res -eq 0 ]]; then
+          show_info "ok $full_path"
+        else
+          show_error "failed to clone ${repo}"
+        fi
       fi
     done
 }

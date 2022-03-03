@@ -21,7 +21,6 @@ show_warning() {
 
 show_error() {
     echo -e "$(get_current_date) [\033[0;31mE\033[0m]: $*"
-    exit 1
 }
 
 join_by() { local IFS="$1"; shift; echo "$*"; }
@@ -63,6 +62,8 @@ do_clone() {
         cleared=$(echo "$line" | sed 's/https\?:\/\/\(.*\).git/\1/')
       elif [[ $line = git@* ]]; then
         cleared=$(echo "$line" | sed 's/git@\(.*\):\(.*\).git/\1\/\2/')
+      elif [[ $line = git://* ]]; then
+        cleared=$(echo "$line" | sed 's/git\?:\/\/\(.*\).git/\1/')
       else
         show_error "can't parse line: ${line}"
       fi
